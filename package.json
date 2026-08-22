@@ -1,0 +1,16 @@
+{
+  "name": "adhikaar-ai",
+  "version": "1.0.0",
+  "description": "AI-powered civic & legal rights assistant for underserved citizens in India",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2"
+  }
+}
