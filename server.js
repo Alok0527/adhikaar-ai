@@ -1,4 +1,4 @@
-// AdhikaarAI - Express backend using Google Gemini API
+// AdhikaarAI - Express backend using Groq API
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
@@ -7,12 +7,12 @@ const fetch = global.fetch; // Node 18+
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-1.5-flash";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
-if (!GEMINI_API_KEY) {
+if (!GROQ_API_KEY) {
   console.warn(
-    "⚠️  GEMINI_API_KEY is not set. Add it to a .env file or your host's environment variables."
+    "⚠️  GROQ_API_KEY is not set. Add it to a .env file or your host's environment variables."
   );
 }
 
@@ -31,30 +31,30 @@ Goals:
 4. Keep answers concise, structured with headings/bullets, and empathetic in tone.
 Never make up specific scheme names or laws you are unsure about.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { role: 'system', parts: [{ text: SYSTEM_PROMPT }] },
-          contents: messages.map(m => ({
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: [{ text: m.content }]
-          })),
-          generationConfig: { maxOutputTokens: 1200 }
-        })
-      }
-    );
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...messages
+        ],
+        max_tokens: 1200
+      })
+    });
 
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini API error:', data);
+      console.error('Groq API error:', data);
       return res.status(response.status).json({ error: data });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const reply = data.choices?.[0]?.message?.content || '';
     res.json({ reply });
   } catch (err) {
     console.error(err);
