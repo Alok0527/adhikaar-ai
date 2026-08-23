@@ -136,8 +136,18 @@
 <body>
 
 <header>
-  <h1>⚖️ AdhikaarAI</h1>
-  <p>अपने अधिकार, अपनी भाषा में — Civic &amp; Legal Rights Assistant</p>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div style="text-align: left;">
+      <h1>⚖️ AdhikaarAI</h1>
+      <p>अपने अधिकार, अपनी भाषा में — Civic &amp; Legal Rights Assistant</p>
+    </div>
+    <div>
+      <select id="langSelect" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; outline: none; font-size: 14px; background: white; color: var(--primary-dark); cursor: pointer;">
+        <option value="Hindi">हिंदी (Hindi)</option>
+        <option value="English">English</option>
+      </select>
+    </div>
+  </div>
 </header>
 
 <div class="quick-actions">
@@ -191,10 +201,13 @@ async function sendMessage(text) {
   const loadingBubble = addMessage('bot', 'सोच रहा हूँ...', true);
 
   try {
+    const langSelect = document.getElementById('langSelect');
+    const selectedLanguage = langSelect ? langSelect.value : 'Hindi';
+
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: history }),
+      body: JSON.stringify({ messages: history, language: selectedLanguage }),
     });
     const data = await res.json();
     loadingBubble.classList.remove('loading');
